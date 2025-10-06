@@ -1,61 +1,78 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Petstore Client 🐾
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Lekki klient **Swagger Petstore API** dla Laravel — obsługuje listowanie, tworzenie, edycję, usuwanie oraz wysyłanie zdjęć zwierząt (`multipart/form-data`).  
+Formularze obsługują **dowolne tagi** (Tagify) i **dowolne kategorie tekstowe**, a wszystkie widoki korzystają z tłumaczeń przez `__('...')`.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ⚙️ Konfiguracja
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+W pliku `.env` ustaw:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+````env
+APP_URL=http://localhost/laravel-petstore-client
+ASSET_URL=http://localhost/laravel-petstore-client/@core/public
+PETSTORE_BASE_URL=https://petstore.swagger.io/v2
+PETSTORE_API_KEY=demo-key
 
-## Learning Laravel
+Następnie uruchom:
+php artisan storage:link
+php artisan config:clear
+php artisan cache:clear
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Serwis: `App\Services\PetService`
 
-## Laravel Sponsors
+Serwis odpowiada za pełną komunikację z **Swagger Petstore API**.
+Umożliwia wykonywanie wszystkich operacji CRUD oraz wysyłanie zdjęć zwierząt.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+### `listByStatus(string $status = 'available'): array`
+Pobiera listę zwierząt według statusu (`available`, `pending`, `sold`).
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+### `getById(int $id): array`
+Zwraca szczegóły pojedynczego zwierzaka.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+### `create(array $payload): array`
+Tworzy nowe zwierzę w API.
+Payload powinien być zgodny ze schematem Petstore.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+### `update(array $payload): array`
+Aktualizuje pełne dane istniejącego zwierzęcia (`PUT /pet`).
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+### `updateWithForm(int $id, ?string $name = null, ?string $status = null): array`
+Aktualizuje tylko pola `name` i `status` przez formularz (`POST /pet/{id}`).
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+### `delete(int $id): array`
+Usuwa zwierzę po ID.
+Wymaga nagłówka `api_key` w konfiguracji (`PETSTORE_API_KEY`).
+
+---
+
+### `uploadImage(int $id, string $filePath, ?string $additionalMetadata = null): array`
+Wysyła zdjęcie zwierzęcia (`multipart/form-data`):
+
+- **`filePath`** – lokalna ścieżka do pliku (np. `storage/app/public/pets/example.jpg`)
+- **`additionalMetadata`** – opcjonalne metadane tekstowe
+
+Zwraca:
+```json
+{
+  "code": 200,
+  "data": {
+    "message": "File uploaded to ./filename.jpg"
+  }
+}
+````
