@@ -1,11 +1,11 @@
-# Laravel Petstore Client 🐾
+# Laravel Petstore Client
 
 Lekki klient **Swagger Petstore API** dla Laravel — obsługuje listowanie, tworzenie, edycję, usuwanie oraz wysyłanie zdjęć zwierząt (`multipart/form-data`).  
 Formularze obsługują **dowolne tagi** (Tagify) i **dowolne kategorie tekstowe**, a wszystkie widoki korzystają z tłumaczeń przez `__('...')`.
 
 ---
 
-## ⚙️ Konfiguracja
+## Konfiguracja
 
 W pliku `.env` ustaw:
 
